@@ -13,7 +13,15 @@ class ImageController {
     }
 
     static async show(req, res) {
-        const imageId = req.params.id;
+        const imageReadId = req.params.id;
+        const image = (await Image.find({ readId: imageReadId }))[0];
+
+        if (!image) {
+            res.status(404).json({});
+            return;
+        }
+
+        const imageId = image.id;
 
         const lastCheck = (await ImageGeneration.find({ id: imageId }))[0];
 
@@ -38,8 +46,6 @@ class ImageController {
         }
 
         console.log('cache miss');
-
-        const image = (await Image.find({ id: imageId }))[0];
 
         if (image) {
             const { players, maxplayers } = await Gamedig.query({
@@ -68,17 +74,15 @@ class ImageController {
             
                 const stream = canvas.createPNGStream();
 
-                console.log(
-                    await ImageGeneration.findOneAndUpdate({
-                        id: image.id,
-                    }, {
-                        id: image.id,
-                        lastGenerateTime: Math.floor(+new Date() / 1000),
-                    }, {
-                        new: true,
-                        upsert: true,
-                    })
-                );
+                await ImageGeneration.findOneAndUpdate({
+                    id: image.id,
+                }, {
+                    id: image.id,
+                    lastGenerateTime: Math.floor(+new Date() / 1000),
+                }, {
+                    new: true,
+                    upsert: true,
+                });
 
                 const out = fs.createWriteStream(`generatedImages/${image.id}`);
 

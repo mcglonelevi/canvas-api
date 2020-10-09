@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const imageSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true },
+    readId: { type: String, required: true, unique: true },
     canvas: {
         version: { type: String, required: true },
         objects: [ { type: mongoose.Schema.Types.Mixed } ],
