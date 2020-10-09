@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const cors = require('cors');
 const multer  = require('multer');
+const config = require('./config');
 
 app.use(express.json());
 app.use(cors());
@@ -17,7 +18,7 @@ const upload = multer({
 });
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://root:password@localhost', {useNewUrlParser: true});
+mongoose.connect(`mongodb://${config.DB_USERNAME}:${config.DB_PASSWORD}@${config.DB_HOST}`, { useNewUrlParser: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -34,5 +35,5 @@ app.post('/images/upload', upload.single('background-image'), ImageController.up
 app.post('/servers/query', ServerController.query);
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`Example app listening at ${port}`)
 });
