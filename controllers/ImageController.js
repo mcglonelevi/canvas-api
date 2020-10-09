@@ -3,6 +3,7 @@ const ImageGeneration = require('../models/ImageGeneration');
 const fabric = require('fabric').fabric;
 const Gamedig = require('gamedig');
 const fs = require('fs');
+const fonts = require('../Font.json');
 
 class ImageController {
     static async index(req, res) {
@@ -47,12 +48,16 @@ class ImageController {
                 port: image.game.port,
             });
 
+            const canvasJson = JSON.parse(JSON.stringify(image.canvas));
+            
+            canvasJson.objects.forEach((o) => {
+                fabric.nodeCanvas.registerFont(fonts[o.fontFamily], { family: o.fontFamily, weight: 'regular', style: 'normal' });
+            });
+
             const canvas = new fabric.StaticCanvas(null, { width: image.canvas.backgroundImage.width, height: image.canvas.backgroundImage.height });
 
             res.writeHead(200, { 'Content-Type': 'image/png' });
         
-            const canvasJson = JSON.parse(JSON.stringify(image.canvas));
-
             canvasJson.objects = canvasJson.objects.map((obj) => {
                 obj.text = obj.text.replace('{{ playerCount }}', `${players.length} / ${maxplayers}`);
                 return obj;
