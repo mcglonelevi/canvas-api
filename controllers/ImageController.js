@@ -28,7 +28,7 @@ class ImageController {
         console.log('find cache', lastCheck);
 
         if (lastCheck && lastCheck.lastGenerateTime > Math.floor(+new Date() / 1000) - 300) {
-            res.writeHead(200, { 'Content-Type': 'image/png' });
+            res.writeHead(200, { 'Content-Type': 'image/jpeg' });
             console.log('cache hit');
             const readStream = fs.createReadStream(`generatedImages/${imageId}`);
 
@@ -62,7 +62,7 @@ class ImageController {
 
             const canvas = new fabric.StaticCanvas(null, { width: image.canvas.backgroundImage.width, height: image.canvas.backgroundImage.height });
 
-            res.writeHead(200, { 'Content-Type': 'image/png' });
+            res.writeHead(200, { 'Content-Type': 'image/jpeg' });
         
             canvasJson.objects = canvasJson.objects.map((obj) => {
                 obj.text = obj.text.replace('{{ playerCount }}', `${players.length} / ${maxplayers}`);
@@ -72,7 +72,7 @@ class ImageController {
             canvas.loadFromJSON(canvasJson, async function() {
                 canvas.renderAll();
             
-                const stream = canvas.createPNGStream();
+                const stream = canvas.createJPEGStream({ quality: 0.8 });
 
                 await ImageGeneration.findOneAndUpdate({
                     id: image.id,
